@@ -46,6 +46,16 @@ def get_all_urls():
     # Return all links to companies in Tyresö
     return all_company_urls
 
+def company_name(company_url):
+
+    # Fetch company name from h1 title
+    response = scraper.get(company_url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    heading = soup.find('h1', class_='site-h1--small')
+
+    # Return company name
+    return heading.text.strip()
+
 def car_count(company_url):
 
     # Construct car information URL
