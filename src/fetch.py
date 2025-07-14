@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 
 scraper = cloudscraper.create_scraper()
 
+# Functions for getting all availible href links from a given page
 def get_urls(url, limiter):
     response = scraper.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -13,6 +14,7 @@ def get_urls(url, limiter):
             urls.append(href)
     return urls
 
+# Function for getting all URLs to all companies in Tyresö
 def get_all_urls():
 
     # Get all immediately availible links to all Tyresö ZIP code pages
@@ -46,28 +48,26 @@ def get_all_urls():
     # Return all links to companies in Tyresö
     return all_company_urls
 
+# Function for getting text from specified tag and class
+def get_data_from_html_tag(url, html_tag, html_class):
+    response = scraper.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    heading = soup.find(html_tag, html_class)
+    return heading.text.strip()
+
 def company_name(company_url):
 
     # Fetch company name from h1 title
-    response = scraper.get(company_url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    heading = soup.find('h1', class_='site-h1--small')
-
-    # Return company name
-    return heading.text.strip()
+    return get_data_from_html_tag(company_url, 'h1', 'site-h1--small')
 
 def car_count(company_url):
-
+    
     # Construct car information URL
     url = company_url[:26] + '/foretag/fordon/' + company_url[27:]
 
-    # Fetch page h2 title including number of cars
-    response = scraper.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    heading = soup.find('h2', class_='site-h3')
-
-    # Return number of cars as int
-    return int(heading.text.strip()[0])
+    # Fetch and return number of cars from h2 title
+    number_of_cars = get_data_from_html_tag(url, 'h2', 'site-h3')
+    return int(number_of_cars[0])
     
 if __name__ == "__main__":
-    car_count('https://www.bolagsfakta.se/690607YEVE00001-Elfin_Power_System')
+    print(car_count('https://www.bolagsfakta.se/690607YEVE00001-Elfin_Power_System'))
