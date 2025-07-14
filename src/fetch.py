@@ -23,7 +23,7 @@ def get_all_urls():
     additional_urls = []
     index = 1
     for i in initial_urls:
-        print(f'\rChecking for page navigation at {i[12:]} ({index}/{len(initial_urls)})', end='', flush=True)
+        print(f'Checking for page navigation ({index}/{len(initial_urls)})', end='\r', flush=True)
         second_level_urls = get_urls(i, 'foretag/tyres%C3%B6-kommun/')
         index += 1
         for j in second_level_urls:
@@ -35,7 +35,7 @@ def get_all_urls():
     all_company_urls = []
     index = 1
     for i in all_urls:
-        print(f'\rFetching company pages from {i[12:]} ({index}/{len(all_urls)})', end='', flush=True)
+        print(f'Fetching company pages from ZIP code pages ({index}/{len(all_urls)})', end='\r', flush=True)
         company_urls = get_urls(i, 'bolagsfakta.se/')
         index += 1
         for j in company_urls:
@@ -48,15 +48,16 @@ def get_all_urls():
 
 def car_count(company_url):
 
-    # Fetch HTML circumventing cloudflare
-    response = scraper.get(company_url)
+    # Construct car information URL
+    url = company_url[:26] + '/foretag/fordon/' + company_url[27:]
 
-    # Parse response and extract car # heading
+    # Fetch page h2 title including number of cars
+    response = scraper.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     heading = soup.find('h2', class_='site-h3')
 
-    # Return # of cars as int
+    # Return number of cars as int
     return int(heading.text.strip()[0])
     
 if __name__ == "__main__":
-    get_all_urls()
+    car_count('https://www.bolagsfakta.se/690607YEVE00001-Elfin_Power_System')
