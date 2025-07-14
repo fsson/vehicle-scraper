@@ -1,13 +1,13 @@
 from src import fetch
+import csv
 
-def fetch_iterator():
-    all_data = []
-    page = 1
-    while fetch.company_data(page):
-        print(f"Fetching from page {page}", end="\r")
-        all_data.extend(fetch.company_data(page))
-        page += 1
-    return all_data
+def write_to_csv(data):
+    with open ('data.csv', 'w') as f:
+        writer = csv.writer(f, delimiter=',')
+        for company_name, car_count in data:
+            writer.writerow([company_name, car_count])
 
 if __name__ == "__main__":
-    print(fetch_iterator())
+    urls = fetch.get_all_urls()
+    data = fetch.company_data(urls)
+    write_to_csv(data)
