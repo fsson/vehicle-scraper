@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 scraper = cloudscraper.create_scraper()
 
-# Functions for getting all availible href links from a given page
+# Function for getting all availible href links from a given page
 def get_urls(url, limiter):
     response = scraper.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -16,18 +16,27 @@ def get_urls(url, limiter):
             urls.append(href)
     return urls
 
+# Function for getting text from specified tag and class
+def get_data_from_html_tag(url, html_tag, html_class):
+    response = scraper.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    heading = soup.find(html_tag, class_=html_class)
+    if heading:
+        return heading.text.strip()
+    return None
+
 # Function for getting all URLs to all companies in Tyresö
 def get_all_urls():
 
     # Get all immediately availible links to all Tyresö ZIP code pages
-    print('Fetching all availible first-level ZIP code pages...')
+    print('Fetching availible first-level ZIP code pages')
     initial_urls = get_urls('https://www.bolagsfakta.se/foretag/tyres%C3%B6-kommun', 'foretag/tyres%C3%B6-kommun/')
 
     # Get additional links from pages with page navigation
     additional_urls_lists = multi_thread_fetch(
         lambda url: get_urls(url, 'foretag/tyres%C3%B6-kommun/'),
         initial_urls,
-        'Fetching additional page navigation links'
+        'Fetching page navigation links'
     )
 
     # Flatten result
@@ -38,7 +47,7 @@ def get_all_urls():
     company_urls_lists = multi_thread_fetch(
         lambda url: get_urls(url, 'bolagsfakta.se/'),
         all_urls,
-        'Fetching all company page links'
+        'Fetching company page links'
     )
 
     # Flatten result, leaving out page navigation links
@@ -47,19 +56,11 @@ def get_all_urls():
     # Return all links to companies in Tyresö
     return all_company_urls
 
-# Function for getting text from specified tag and class
-def get_data_from_html_tag(url, html_tag, html_class):
-    response = scraper.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    heading = soup.find(html_tag, class_=html_class)
-    if heading:
-        return heading.text.strip()
-    return None
-
+### IMPROVE HERE BY GETTING BOTH NAME AND COUNT FROM THE SAME PAGE FETCH FOR EFFICIENCY, NO NEED FOR WRAPPER IN company_data()
 # Function for getting company name
 def name(company_url):
 
-    # Fetch company name from h1 title
+    # Fetch and return company name from h1 title
     company_name = get_data_from_html_tag(company_url, 'h1', 'site-h1--small')
     if company_name:
         return company_name
@@ -87,16 +88,14 @@ def company_data(urls):
         number_of_cars = car_count(url)
         if company_name and number_of_cars:
             return company_name, number_of_cars
+        return None
     
     # Get name and car count for each company
-    all_company_data_lists = multi_thread_fetch(
+    all_company_data = multi_thread_fetch(
         lambda url: wrapper_function(url),
         urls,
-        'Extracting company name and number of cars from company pages'
+        'Fetching company car data'
     )
-
-    # Flatten result
-    all_company_data = [j for sublist in all_company_data_lists for j in (sublist or [])]
 
     # Return data on the number of cars for each company in Tyresö
     return all_company_data
