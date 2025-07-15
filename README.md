@@ -1,8 +1,8 @@
-# Company Vehicle Scraper
+# Company vehicle scraper
 
 This project is a Python web scraper for collecting data on registered vehicles per company in Tyresö kommun using data from [bolagsfakta.se](https://www.bolagsfakta.se/). It uses multi-threading to efficiently scrape large numbers of web pages in parallel, with the output saved in a CSV file.
 
-## How It Works
+## How it works
 
 1. **Collect first-level links**: The scraper fetches all available ZIP code-based pages for Tyresö.
 2. **Handle pagination**: The scraper identifies and follows all pagination links to ensure all companies are collected.
@@ -12,7 +12,7 @@ This project is a Python web scraper for collecting data on registered vehicles 
    - The number of registered vehicles
 5. **Save data to CSV**: All data is written to `data.csv`, sorted by vehicle count in descending order.
 
-## Project Structure
+## Project structure
 
 ```bash
 src/
@@ -21,7 +21,7 @@ main.py          # Runs the full pipeline and saves results
 data.csv         # Output file with company and vehicle data
 ```
 
-## How to Use
+## How to use
 ### Installation
 
 1. Clone the repository:

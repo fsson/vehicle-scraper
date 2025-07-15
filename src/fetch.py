@@ -101,4 +101,4 @@ def multi_thread_fetch(function, urls, description):
     return results
     
 if __name__ == "__main__":
-    print(name_and_car_count('https://www.bolagsfakta.se/2120000092-TYRESO_KOMMUN'))
+    pass
