@@ -3,12 +3,18 @@ from bs4 import BeautifulSoup
 import concurrent.futures
 from tqdm import tqdm
 
-scraper = cloudscraper.create_scraper()
+# Function for scraping webpage with 
+def web_scraper(url):
+    scraper = cloudscraper.create_scraper()
+    response = scraper.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    if soup:
+        return soup
+    return None
 
 # Function for getting all availible href links from a given page
 def get_urls(url, limiter):
-    response = scraper.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
+    soup = web_scraper(url)
     urls = []
     for link in soup.find_all('a'):
         href = link.get('href')
@@ -17,13 +23,13 @@ def get_urls(url, limiter):
     return urls
 
 # Function for getting text from specified tag and class
-def get_data_from_html_tag(url, html_tag, html_class):
-    response = scraper.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    heading = soup.find(html_tag, class_=html_class)
-    if heading:
-        return heading.text.strip()
-    return None
+# def get_data_from_html_tag(url, html_tag, html_class):
+#     response = scraper.get(url)
+#     soup = BeautifulSoup(response.text, 'html.parser')
+#     heading = soup.find(html_tag, class_=html_class)
+#     if heading:
+#         return heading.text.strip()
+#     return None
 
 # Function for getting all URLs to all companies in Tyresö
 def get_all_urls():
@@ -56,43 +62,28 @@ def get_all_urls():
     # Return all links to companies in Tyresö
     return all_company_urls
 
-### IMPROVE HERE BY GETTING BOTH NAME AND COUNT FROM THE SAME PAGE FETCH FOR EFFICIENCY, NO NEED FOR WRAPPER IN company_data()
-# Function for getting company name
-def name(company_url):
+# Function for getting company name and car count
+def name_and_car_count(company_url):
+    soup = web_scraper(company_url)
 
-    # Fetch and return company name from h1 title
-    company_name = get_data_from_html_tag(company_url, 'h1', 'site-h1--small')
-    if company_name:
-        return company_name
-    return None
+    # Get company name from h1
+    company_name_h1 = soup.find('h1', class_='site-h2')
+    company_name = company_name_h1.text.strip().removeprefix('Fordon ägda av ')
 
-# Function for getting company car count
-def car_count(company_url):
-    
-    # Construct car information URL
-    url = company_url[:26] + '/foretag/fordon/' + company_url[27:]
+    # Get number of cars from h2
+    number_of_cars_h2 = soup.find('h2', class_='site-h3')
+    number_of_cars = int(number_of_cars_h2.text.strip().split()[0])
 
-    # Fetch and return number of cars from h2 title
-    number_of_cars_h2 = get_data_from_html_tag(url, 'h2', 'site-h3')
-    if number_of_cars_h2:
-        number_of_cars = number_of_cars_h2.split()[0]
-        return int(number_of_cars)
+    if company_name and number_of_cars:
+        return company_name, number_of_cars
     return None
 
 # Function for fetching name and car count for each company
 def company_data(urls):
-
-    # Wrapper function for running on multiple threads
-    def wrapper_function(url):
-        company_name = name(url)
-        number_of_cars = car_count(url)
-        if company_name and number_of_cars:
-            return company_name, number_of_cars
-        return None
     
-    # Get name and car count for each company
+    # Get name and car count for each company running multiple threads
     all_company_data = multi_thread_fetch(
-        lambda url: wrapper_function(url),
+        lambda url: name_and_car_count(url),
         urls,
         'Fetching company car data'
     )
