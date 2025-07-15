@@ -27,7 +27,7 @@ data.csv         # Output file with company and vehicle data
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/vehicle-scraper.git
+git clone https://github.com/fsson/vehicle-scraper.git
 cd vehicle-scraper
 ```
 2. Install dependencies:
