@@ -22,15 +22,6 @@ def get_urls(url, limiter):
             urls.append(href)
     return urls
 
-# Function for getting text from specified tag and class
-# def get_data_from_html_tag(url, html_tag, html_class):
-#     response = scraper.get(url)
-#     soup = BeautifulSoup(response.text, 'html.parser')
-#     heading = soup.find(html_tag, class_=html_class)
-#     if heading:
-#         return heading.text.strip()
-#     return None
-
 # Function for getting all URLs to all companies in Tyresö
 def get_all_urls():
 
@@ -64,15 +55,24 @@ def get_all_urls():
 
 # Function for getting company name and car count
 def name_and_car_count(company_url):
-    soup = web_scraper(company_url)
+
+    # Contstruct correct URL and scrape page
+    url = company_url[:26] + '/foretag/fordon/' + company_url[27:]
+    soup = web_scraper(url)
 
     # Get company name from h1
     company_name_h1 = soup.find('h1', class_='site-h2')
-    company_name = company_name_h1.text.strip().removeprefix('Fordon ägda av ')
+    if company_name_h1:
+        company_name = company_name_h1.text.strip().removeprefix('Fordon ägda av ')
+    else:
+        company_name = None
 
     # Get number of cars from h2
     number_of_cars_h2 = soup.find('h2', class_='site-h3')
-    number_of_cars = int(number_of_cars_h2.text.strip().split()[0])
+    if number_of_cars_h2:
+        number_of_cars = int(number_of_cars_h2.text.strip().split()[0])
+    else:
+        number_of_cars = None
 
     if company_name and number_of_cars:
         return company_name, number_of_cars
@@ -101,4 +101,4 @@ def multi_thread_fetch(function, urls, description):
     return results
     
 if __name__ == "__main__":
-    pass
+    print(name_and_car_count('https://www.bolagsfakta.se/2120000092-TYRESO_KOMMUN'))
