@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import concurrent.futures
 from tqdm import tqdm
 
-# Function for scraping webpage with 
+# Function for scraping webpage with cloudscraper
 def web_scraper(url):
     scraper = cloudscraper.create_scraper()
     response = scraper.get(url)
