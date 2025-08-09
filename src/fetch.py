@@ -59,6 +59,7 @@ def name_and_car_count(company_url):
     # Contstruct correct URL and scrape page
     url = company_url[:26] + '/foretag/fordon/' + company_url[27:]
     soup = web_scraper(url)
+    full_soup = web_scraper(company_url)
 
     # Get company name from h1
     company_name_h1 = soup.find('h1', class_='site-h2')
@@ -74,8 +75,16 @@ def name_and_car_count(company_url):
     else:
         number_of_cars = None
 
+    # Get phone number (if exists)
+    phone_h2 = full_soup.find('h2', class_='site-h5', string='Telefon')
+    phone_number = None
+    if phone_h2:
+        phone_p = phone_h2.find_next('p')
+        if phone_p and phone_p.a:
+            phone_number = phone_p.a.get_text(strip=True)
+
     if company_name and number_of_cars:
-        return company_name, number_of_cars
+        return company_name, number_of_cars, phone_number
     return None
 
 # Function for fetching name and car count for each company
