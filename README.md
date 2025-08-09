@@ -7,9 +7,10 @@ This project is a Python web scraper for collecting data on registered vehicles 
 1. **Collect first-level links**: The scraper fetches all available ZIP code-based pages for Tyresö.
 2. **Handle pagination**: The scraper identifies and follows all pagination links to ensure all companies are collected.
 3. **Extract company links**: From each ZIP code and pagination page, the scraper extracts links to individual company profiles.
-4. **Fetch vehicle data**: For each company, the scraper navigates to the company’s vehicle page and extracts:
+4. **Fetch data**: For each company, the scraper navigates to the company’s pages and extracts:
    - The company name
    - The number of registered vehicles
+   - The company phone number
 5. **Save data to CSV**: All data is written to `data.csv`, sorted by vehicle count in descending order.
 
 ## Project structure
@@ -40,7 +41,7 @@ python main.py
 ```
 This will create a file named `data.csv` with the following format:
 
-| Company            | Registered vehicles |
-| ------------------ | ------------------- |
-| Example AB         | 56                  |
-| Another Company AB | 42                  |
+| Company            | Registered vehicles | Phone number        |
+| ------------------ | ------------------- | ------------------- |
+| Example AB         | 56                  | 070 123 45 67       |
+| Another Company AB | 42                  | 070 891 01 11       |
